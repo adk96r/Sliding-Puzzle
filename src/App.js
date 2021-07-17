@@ -1,24 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { Tile } from "./Tile";
+import { useTileImages } from "./useTileImages";
+import useTileEngine from "./useTileEngine";
+import cheetah from "./cheetah.jpeg";
 
-function App() {
+function App(props) {
+  const { rows = 3, cols = 3, image = cheetah } = props;
+
+  const tileImages = useTileImages(image, rows, cols);
+  const [board, onTilePressed] = useTileEngine(rows, cols);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <div className="sliding-puzzle-board">
+        {tileImages.map((tileImage, index) => {
+          return (
+            <Tile
+              key={index}
+              tileIndex={index}
+              boardCoords={board.get(index)}
+              tileImage={tileImage}
+              onTilePress={onTilePressed}
+            />
+          );
+        })}
+      </div>
+    </>
   );
 }
 
