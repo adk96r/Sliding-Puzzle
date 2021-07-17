@@ -1,3 +1,5 @@
+import { animated, config, useSpring } from "react-spring";
+
 export function Tile(props) {
   const {
     boardCoords: [x, y],
@@ -5,14 +7,20 @@ export function Tile(props) {
     tileIndex,
     onTilePress,
   } = props;
-  const left = 58 * x;
-  const top = 58 * y;
+
+  const styles = useSpring({
+    to: {
+      left: 58 * x,
+      top: 58 * y,
+    },
+    config: config.stiff,
+  });
 
   return (
-    <div
+    <animated.div
       onClick={() => onTilePress(tileIndex)}
       className="sliding-puzzle-tile"
-      style={{ left, top, backgroundImage: `url(${tileImage})` }}
-    ></div>
+      style={{ ...styles, backgroundImage: `url(${tileImage})` }}
+    ></animated.div>
   );
 }
