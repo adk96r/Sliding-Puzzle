@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import useStateRef from "react-usestateref";
 
 // Creates a board, essentially a Map that stores the
@@ -16,43 +16,80 @@ function createBoard(numRows, numCols) {
 }
 
 export default function useTileEngine(numRows, numCols) {
-  const [board, updateBoard, boardRef] = useStateRef(createBoard(numRows, numCols));
-  const [_, updateEmptyTileCoords, emptyTileCoordsRef] = useStateRef([numCols - 1, numRows - 1]);
-  const [__, updateMoves, movesRef] = useStateRef([]);
+  const [, updateBoard, boardRef] = useStateRef([]);
+  const [, updateEmptyTileCoords, emptyTileCoordsRef] = useStateRef([]);
+  const [, updateMoves, movesRef] = useStateRef([]);
 
-  const onTilePressed = useCallback(
-    (tileIndex, shouldUpdateMoves = true) => {
-      const [emptyX, emptyY] = emptyTileCoordsRef.current;
+  useEffect(() => {
+    updateBoard(createBoard(numRows, numCols));
+    updateEmptyTileCoords([numCols - 1, numRows - 1]);
+  }, [numRows, numCols, updateBoard, updateEmptyTileCoords]);
 
-      const tileCoords = boardRef.current.get(tileIndex);
-      if (!tileCoords) return;
-
-      const [tileX, tileY] = tileCoords;
-
-      // If the clicked tile is beside the empty square, then swap positions
-      if (
-        (tileY === emptyY && Math.abs(tileX - emptyX) === 1) || // Same row
-        (tileX === emptyX && Math.abs(tileY - emptyY) === 1) // Same column
-      ) {
-        const newBoardCoords = new Map(boardRef.current);
-        newBoardCoords.set(tileIndex, [emptyX, emptyY]);
-        updateBoard(newBoardCoords);
-        updateEmptyTileCoords([tileX, tileY]);
-        if (shouldUpdateMoves) updateMoves([tileIndex, ...movesRef.current]);
+  const getCurrentTileIndexAtInitialIndex = useCallback(
+    (initialIndex) => {
+      const [x, y] = [initialIndex % numCols, Math.floor(initialIndex / numCols)];
+      for (let [key, value] of boardRef.current) {
+        if (value[0] === x && value[1] === y) {
+          return key;
+        }
       }
+      return -1;
     },
-    [boardRef, movesRef, emptyTileCoordsRef, updateBoard, updateMoves, updateEmptyTileCoords]
+    [boardRef, numCols]
   );
 
-  const getCurrentTileIndexAtInitialIndex = (initialIndex) => {
-    const [x, y] = [initialIndex % numCols, Math.floor(initialIndex / numCols)];
-    for (let [key, value] of boardRef.current) {
-      if (value[0] === x && value[1] === y) {
-        return key;
+  const onTilePress = useCallback(
+    (tileIndex, shouldLogMove = true) => {
+      const [emptyX, emptyY] = emptyTileCoordsRef.current;
+      if (!boardRef?.current?.get(tileIndex)) return;
+
+      const [tileX, tileY] = boardRef.current.get(tileIndex);
+
+      // If the clicked tile is beside the empty square, then swap positions
+      if (tileY === emptyY || tileX === emptyX) {
+        const newBoard = new Map(boardRef.current);
+        let nextTileIndex = tileIndex;
+
+        if (tileY === emptyY) {
+          // Same row
+          const delta = tileX < emptyX ? 1 : -1;
+          const tilesToMove = Math.abs(emptyX - tileX);
+          for (let i = 0; i < tilesToMove; i++) {
+            const newCoords = [newBoard.get(nextTileIndex)[0] + delta, emptyY];
+            newBoard.set(nextTileIndex, newCoords);
+            nextTileIndex = getCurrentTileIndexAtInitialIndex(
+              newCoords[0] + numCols * newCoords[1]
+            );
+          }
+        } else if (tileX === emptyX) {
+          // Same column
+          const delta = tileY < emptyY ? 1 : -1;
+          const tilesToMove = Math.abs(emptyY - tileY);
+          for (let i = 0; i < tilesToMove; i++) {
+            const newCoords = [emptyX, newBoard.get(nextTileIndex)[1] + delta];
+            newBoard.set(nextTileIndex, newCoords);
+            nextTileIndex = getCurrentTileIndexAtInitialIndex(
+              newCoords[0] + numCols * newCoords[1]
+            );
+          }
+        }
+
+        updateBoard(newBoard);
+        updateEmptyTileCoords([tileX, tileY]);
+        if (shouldLogMove) updateMoves([tileIndex, ...movesRef.current]);
       }
-    }
-    return -1;
-  };
+    },
+    [
+      emptyTileCoordsRef,
+      boardRef,
+      updateBoard,
+      updateEmptyTileCoords,
+      updateMoves,
+      movesRef,
+      getCurrentTileIndexAtInitialIndex,
+      numCols,
+    ]
+  );
 
   const makeRandomMove = () => {
     const [emptyX, emptyY] = emptyTileCoordsRef.current;
@@ -68,8 +105,7 @@ export default function useTileEngine(numRows, numCols) {
 
     // Find a move which hasn't been done in the last-n moves.
     const index = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-
-    onTilePressed(index);
+    onTilePress(index);
   };
 
   const shuffle = (maxMoves) => {
@@ -84,11 +120,11 @@ export default function useTileEngine(numRows, numCols) {
     const interval = setInterval(() => {
       if (movesRef.current.length === 0) clearInterval(interval);
       const lastMoveTileIndex = movesRef.current[0];
-      onTilePressed(lastMoveTileIndex, false);
+      onTilePress(lastMoveTileIndex, false);
       updateMoves(movesRef.current.slice(1));
     }, 10);
   };
 
   // Dont expose complete board
-  return { board, onTilePressed, shuffle, reset };
+  return { board: boardRef.current, onTilePress, shuffle, reset };
 }

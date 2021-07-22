@@ -14,4 +14,10 @@ const size = {
   boardOuterCornerRadius: 0.4,
 };
 
+const theme = {
+  tileColor: "#ffffff",
+  boardColor: "#ff4411",
+};
+
 export const SizeContext = createContext(size);
+export const ThemeContext = createContext(theme);

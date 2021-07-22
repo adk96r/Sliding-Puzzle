@@ -3,21 +3,24 @@ import useTileEngine from "./hooks/useTileEngine";
 import cheetah from "./cheetah.jpeg";
 import { useTileImages } from "./hooks/useTileImages";
 import { Board3D } from "./boards/3D/Board3D";
-import { useEffect } from "react";
+import { useState } from "react";
 import { SizeContext } from "./Settings";
 
 function App(props) {
-  const { rows = 3, cols = 3, image = cheetah } = props;
+  const { image = cheetah } = props;
+
+  const [rows, setRows] = useState(2);
+  const [cols, setCols] = useState(3);
 
   const tileImages = useTileImages(rows, cols, image);
-  const { board, onTilePressed, shuffle, reset } = useTileEngine(rows, cols);
-  useEffect(() => {
-    console.log("Board changed");
-  }, [board]);
+  const { board, onTilePress } = useTileEngine(rows, cols);
+  console.log(board);
   return (
     <>
-      <button onClick={() => shuffle(100)}>Shuffle!</button>
-      <button onClick={() => reset()}>Reset!</button>
+      <button onClick={() => setRows((rows) => rows + 1)}>Rows-</button>
+      <button onClick={() => setCols((cols) => cols + 1)}>Cols+</button>
+      <button onClick={() => setRows((rows) => rows - 1)}>Rows-</button>
+      <button onClick={() => setCols((cols) => cols - 1)}>Cols-</button>
 
       <SizeContext.Provider>
         <Board3D
@@ -25,7 +28,7 @@ function App(props) {
           cols={cols}
           tileImages={tileImages}
           board={board}
-          onTilePressed={onTilePressed}
+          onTilePress={onTilePress}
         />
       </SizeContext.Provider>
     </>

@@ -16,7 +16,7 @@ export function useTileImages(rows, cols, imageSrc) {
 }
 
 function diceImage(image, rows, cols) {
-  const side = Math.floor(Math.min(image.width, image.height) / rows);
+  const side = Math.floor(Math.min(image.width, image.height) / Math.max(rows, cols));
   const tileImages = [];
 
   for (let r = 0; r < rows; r++) {
