@@ -1,30 +1,33 @@
 import "./App.css";
-import { Tile } from "./Tile";
-import { useTileImages } from "./useTileImages";
-import useTileEngine from "./useTileEngine";
+import useTileEngine from "./hooks/useTileEngine";
 import cheetah from "./cheetah.jpeg";
+import { useTileImages } from "./hooks/useTileImages";
+import { Board3D } from "./boards/3D/Board3D";
+import { useEffect } from "react";
+import { SizeContext } from "./Settings";
 
 function App(props) {
   const { rows = 3, cols = 3, image = cheetah } = props;
 
-  const tileImages = useTileImages(image, rows, cols);
-  const [board, onTilePressed] = useTileEngine(rows, cols);
-
+  const tileImages = useTileImages(rows, cols, image);
+  const { board, onTilePressed, shuffle, reset } = useTileEngine(rows, cols);
+  useEffect(() => {
+    console.log("Board changed");
+  }, [board]);
   return (
     <>
-      <div className="sliding-puzzle-board">
-        {tileImages.map((tileImage, index) => {
-          return (
-            <Tile
-              key={index}
-              tileIndex={index}
-              boardCoords={board.get(index)}
-              tileImage={tileImage}
-              onTilePress={onTilePressed}
-            />
-          );
-        })}
-      </div>
+      <button onClick={() => shuffle(100)}>Shuffle!</button>
+      <button onClick={() => reset()}>Reset!</button>
+
+      <SizeContext.Provider>
+        <Board3D
+          rows={rows}
+          cols={cols}
+          tileImages={tileImages}
+          board={board}
+          onTilePressed={onTilePressed}
+        />
+      </SizeContext.Provider>
     </>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export function useTileImages(imageSrc, rows, cols) {
+export function useTileImages(rows, cols, imageSrc) {
   const [tileImages, setTileImages] = useState([]);
 
   useEffect(() => {
