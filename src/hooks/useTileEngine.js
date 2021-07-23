@@ -1,33 +1,35 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import useStateRef from "react-usestateref";
+import { GameContext } from "../Settings";
 
 // Creates a board, essentially a Map that stores the
 // coordinates of each tile on the board. Horizontal
 // axis is x. Vertical axis downwards is y.
-function createBoard(numRows, numCols) {
+function createBoard(rows, cols) {
   const map = new Map();
-  for (let y = 0, tile = 0; y < numRows; y++) {
-    for (let x = 0; x < numCols; x++) {
-      if (y === numRows - 1 && x === numCols - 1) continue;
+  for (let y = 0, tile = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (y === rows - 1 && x === cols - 1) continue;
       map.set(tile++, [x, y]);
     }
   }
   return map;
 }
 
-export default function useTileEngine(numRows, numCols) {
+export default function useTileEngine() {
+  const { rows, cols } = useContext(GameContext);
   const [, updateBoard, boardRef] = useStateRef([]);
   const [, updateEmptyTileCoords, emptyTileCoordsRef] = useStateRef([]);
   const [, updateMoves, movesRef] = useStateRef([]);
 
   useEffect(() => {
-    updateBoard(createBoard(numRows, numCols));
-    updateEmptyTileCoords([numCols - 1, numRows - 1]);
-  }, [numRows, numCols, updateBoard, updateEmptyTileCoords]);
+    updateBoard(createBoard(rows, cols));
+    updateEmptyTileCoords([cols - 1, rows - 1]);
+  }, [rows, cols, updateBoard, updateEmptyTileCoords]);
 
   const getCurrentTileIndexAtInitialIndex = useCallback(
     (initialIndex) => {
-      const [x, y] = [initialIndex % numCols, Math.floor(initialIndex / numCols)];
+      const [x, y] = [initialIndex % cols, Math.floor(initialIndex / cols)];
       for (let [key, value] of boardRef.current) {
         if (value[0] === x && value[1] === y) {
           return key;
@@ -35,7 +37,7 @@ export default function useTileEngine(numRows, numCols) {
       }
       return -1;
     },
-    [boardRef, numCols]
+    [boardRef, cols]
   );
 
   const onTilePress = useCallback(
@@ -57,9 +59,7 @@ export default function useTileEngine(numRows, numCols) {
           for (let i = 0; i < tilesToMove; i++) {
             const newCoords = [newBoard.get(nextTileIndex)[0] + delta, emptyY];
             newBoard.set(nextTileIndex, newCoords);
-            nextTileIndex = getCurrentTileIndexAtInitialIndex(
-              newCoords[0] + numCols * newCoords[1]
-            );
+            nextTileIndex = getCurrentTileIndexAtInitialIndex(newCoords[0] + cols * newCoords[1]);
           }
         } else if (tileX === emptyX) {
           // Same column
@@ -68,9 +68,7 @@ export default function useTileEngine(numRows, numCols) {
           for (let i = 0; i < tilesToMove; i++) {
             const newCoords = [emptyX, newBoard.get(nextTileIndex)[1] + delta];
             newBoard.set(nextTileIndex, newCoords);
-            nextTileIndex = getCurrentTileIndexAtInitialIndex(
-              newCoords[0] + numCols * newCoords[1]
-            );
+            nextTileIndex = getCurrentTileIndexAtInitialIndex(newCoords[0] + cols * newCoords[1]);
           }
         }
 
@@ -87,19 +85,19 @@ export default function useTileEngine(numRows, numCols) {
       updateMoves,
       movesRef,
       getCurrentTileIndexAtInitialIndex,
-      numCols,
+      cols,
     ]
   );
 
   const makeRandomMove = () => {
     const [emptyX, emptyY] = emptyTileCoordsRef.current;
-    const emptyIndex = emptyX + emptyY * numCols;
+    const emptyIndex = emptyX + emptyY * cols;
     let possibleMoves = [];
 
-    if (emptyX + 1 < numCols) possibleMoves.push(emptyIndex + 1);
+    if (emptyX + 1 < cols) possibleMoves.push(emptyIndex + 1);
     if (emptyX - 1 >= 0) possibleMoves.push(emptyIndex - 1);
-    if (emptyY + 1 < numRows) possibleMoves.push(emptyIndex + numCols);
-    if (emptyY - 1 >= 0) possibleMoves.push(emptyIndex - numCols);
+    if (emptyY + 1 < rows) possibleMoves.push(emptyIndex + cols);
+    if (emptyY - 1 >= 0) possibleMoves.push(emptyIndex - cols);
 
     possibleMoves = possibleMoves.map((move) => getCurrentTileIndexAtInitialIndex(move));
 

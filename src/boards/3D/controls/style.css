@@ -1,0 +1,28 @@
+#controls {
+  position: fixed;
+  height: 10vh;
+  bottom: 0px;
+  width: 100%;
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.8);
+  border-top: 2px solid gray;
+  display: flex;
+  align-items: center;
+}
+
+.control {
+  border-right: 1px solid lightgray;
+  flex-grow: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: gray;
+  font-size: 1.5rem;
+}
+
+.control:hover {
+  color: black;
+  cursor: pointer;
+}

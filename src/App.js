@@ -1,36 +1,28 @@
 import "./App.css";
 import useTileEngine from "./hooks/useTileEngine";
-import cheetah from "./cheetah.jpeg";
+
 import { useTileImages } from "./hooks/useTileImages";
 import { Board3D } from "./boards/3D/Board3D";
-import { useState } from "react";
-import { SizeContext } from "./Settings";
+import { game, GameContext, size, SizeContext, theme, ThemeContext } from "./Settings";
+import { Canvas } from "react-three-fiber";
+import { Controls } from "./boards/3D/controls/Controls";
 
-function App(props) {
-  const { image = cheetah } = props;
+function App() {
+  const { board, onTilePress, shuffle, reset } = useTileEngine();
+  const tileImages = useTileImages();
 
-  const [rows, setRows] = useState(2);
-  const [cols, setCols] = useState(3);
-
-  const tileImages = useTileImages(rows, cols, image);
-  const { board, onTilePress } = useTileEngine(rows, cols);
-  console.log(board);
   return (
     <>
-      <button onClick={() => setRows((rows) => rows + 1)}>Rows-</button>
-      <button onClick={() => setCols((cols) => cols + 1)}>Cols+</button>
-      <button onClick={() => setRows((rows) => rows - 1)}>Rows-</button>
-      <button onClick={() => setCols((cols) => cols - 1)}>Cols-</button>
-
-      <SizeContext.Provider>
-        <Board3D
-          rows={rows}
-          cols={cols}
-          tileImages={tileImages}
-          board={board}
-          onTilePress={onTilePress}
-        />
-      </SizeContext.Provider>
+      <GameContext.Provider value={game}>
+        <SizeContext.Provider value={size}>
+          <ThemeContext.Provider value={theme}>
+            <Canvas camera={{ position: [0, 0, Math.max(3, 3) * 2] }} shadowMap>
+              <Board3D tileImages={tileImages} board={board} onTilePress={onTilePress} />
+            </Canvas>
+          </ThemeContext.Provider>
+        </SizeContext.Provider>
+      </GameContext.Provider>
+      <Controls shuffle={shuffle} reset={reset} hint={() => {}} />
     </>
   );
 }

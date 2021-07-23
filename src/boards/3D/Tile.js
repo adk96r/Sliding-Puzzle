@@ -2,10 +2,11 @@ import { animated, config, useSpring } from "@react-spring/three";
 import { Suspense, useContext, useMemo } from "react";
 import { useLoader } from "react-three-fiber";
 import { TextureLoader } from "three";
-import { SizeContext } from "../../Settings";
+import { SizeContext, ThemeContext } from "../../Settings";
 import { useTileGeometry } from "./useTileGeometry";
 
 export function Tile(props) {
+  const { tileColor } = useContext(ThemeContext);
   const { tileIndex, x, y, rows, cols, tileImage, onTilePress } = props;
   const { tileLength, tileMargin, boardDepth } = useContext(SizeContext);
   const geometryProps = {
@@ -34,12 +35,11 @@ export function Tile(props) {
   const texture = useLoader(TextureLoader, tileImage);
   texture.repeat.set(1 / tileLength, 1 / tileLength);
   texture.offset.set(0.5, 0.5);
-
   return (
-    <Suspense fallback={"Hello"}>
+    <Suspense fallback={"Loading tile"}>
       <animated.mesh position={position} geometry={geometry} onClick={() => onTilePress(tileIndex)}>
         <meshStandardMaterial map={texture} attachArray="material" />
-        <meshBasicMaterial color="white" attachArray="material" />
+        <meshBasicMaterial color={tileColor} attachArray="material" />
       </animated.mesh>
     </Suspense>
   );

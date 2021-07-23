@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { GameContext } from "../Settings";
 
-export function useTileImages(rows, cols, imageSrc) {
+export function useTileImages() {
+  const { rows, cols, image: imageSrc } = useContext(GameContext);
   const [tileImages, setTileImages] = useState([]);
 
   useEffect(() => {
@@ -9,6 +11,7 @@ export function useTileImages(rows, cols, imageSrc) {
       const tileImages = diceImage(image, rows, cols);
       setTileImages(tileImages);
     };
+    image.crossOrigin = "anonymous";
     image.src = imageSrc;
   }, [imageSrc, rows, cols]);
 
