@@ -39,7 +39,7 @@ export function Tile(props) {
     <Suspense fallback={"Loading tile"}>
       <animated.mesh position={position} geometry={geometry} onClick={() => onTilePress(tileIndex)}>
         <meshStandardMaterial map={texture} attachArray="material" />
-        <meshBasicMaterial color={tileColor} attachArray="material" />
+        <meshLambertMaterial color={tileColor} attachArray="material" />
       </animated.mesh>
     </Suspense>
   );

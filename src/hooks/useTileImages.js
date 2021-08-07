@@ -11,7 +11,7 @@ export function useTileImages() {
       const tileImages = diceImage(image, rows, cols);
       setTileImages(tileImages);
     };
-    image.crossOrigin = "anonymous";
+    // image.crossOrigin = "anonymous";
     image.src = imageSrc;
   }, [imageSrc, rows, cols]);
 

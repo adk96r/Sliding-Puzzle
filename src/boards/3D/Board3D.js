@@ -1,11 +1,8 @@
 import React, { Suspense, useContext, useMemo } from "react";
-import * as THREE from "three";
 import { DoubleSide } from "three";
 import { GameContext, SizeContext, ThemeContext } from "../../Settings";
 import { useTileGeometry } from "./useTileGeometry";
 import { Tile } from "./Tile";
-import { Canvas } from "react-three-fiber";
-import { Controls } from "./controls/Controls";
 import { OrbitControls } from "@react-three/drei";
 
 function Board(props) {
@@ -32,22 +29,6 @@ function Board(props) {
   );
 }
 
-function Plane() {
-  return useMemo(() => {
-    const planeGeometry = new THREE.PlaneGeometry(1000, 1000, 1, 1);
-    return (
-      <mesh
-        geometry={planeGeometry}
-        receiveShadow
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, -4, 0]}
-      >
-        <meshPhongMaterial color={"white"} depthWrite={false} />
-      </mesh>
-    );
-  }, []);
-}
-
 function Tiles(props) {
   const { rows, cols, board, onTilePress, tileImages } = props;
 
@@ -56,6 +37,7 @@ function Tiles(props) {
       if (!board.get(tileIndex)) return null;
       return (
         <Tile
+          key={tileIndex}
           tileIndex={tileIndex}
           x={board.get(tileIndex)[0]}
           y={board.get(tileIndex)[1]}
@@ -79,14 +61,13 @@ export function Board3D(props) {
   return (
     <Suspense fallback={"Loading board"}>
       <ambientLight intensity={0.5} />
-      <pointLight position={[-10, 0, 0]} intensity={0.4} />
-      <pointLight position={[10, 0, 0]} intensity={0.4} />
-      <pointLight position={[0, 10, 0]} intensity={0.4} />
-      <pointLight position={[0, -10, 0]} intensity={0.4} />
-      <spotLight position={[0, 0, +10]} intensity={0.3} />
-      <pointLight position={[0, 0, -10]} intensity={0.3} />
+      <pointLight position={[-10, 0, 5]} intensity={0.3} />
+      <pointLight position={[10, 0, 5]} intensity={0.3} />
+      <pointLight position={[0, 10, 5]} intensity={0.3} />
+      <pointLight position={[0, -10, 5]} intensity={0.3} />
+      <spotLight position={[0, 0, +10]} intensity={1.5} />
+      <pointLight position={[0, 0, -10]} intensity={0.1} />
 
-      <Plane />
       <Board rows={rows} cols={cols} />
       <Suspense fallback={"Loading tiles"}>
         <Tiles

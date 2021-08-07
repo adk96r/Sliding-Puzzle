@@ -111,7 +111,7 @@ export default function useTileEngine() {
     const interval = setInterval(() => {
       if (numMoves++ === maxMoves) clearInterval(interval);
       else makeRandomMove();
-    }, 10);
+    }, 20);
   };
 
   const reset = () => {
@@ -120,7 +120,7 @@ export default function useTileEngine() {
       const lastMoveTileIndex = movesRef.current[0];
       onTilePress(lastMoveTileIndex, false);
       updateMoves(movesRef.current.slice(1));
-    }, 10);
+    }, 200);
   };
 
   // Dont expose complete board

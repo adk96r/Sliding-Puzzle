@@ -1,4 +1,5 @@
 import { createContext } from "react";
+import Cheetah from "./cheetah.jpeg";
 
 export const size = {
   // Tile
@@ -15,15 +16,14 @@ export const size = {
 };
 
 export const theme = {
-  tileColor: "#222222",
-  boardColor: "#444444",
+  tileColor: "#ff4411",
+  boardColor: "#ff4411",
 };
 
 export const game = {
   rows: 3,
   cols: 3,
-  image:
-    "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/aloe-vera-plant-1522874831.jpg",
+  image: Cheetah,
 };
 
 export const GameContext = createContext(game);
